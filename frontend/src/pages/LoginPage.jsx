@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { ui, cx } from "../constants/uiClasses";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -14,6 +15,7 @@ const LoginPage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [remember, setRemember] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,42 +36,93 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-md w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          CRM Login
-        </h1>
+    <div className={ui.login.page}>
+      <div className={ui.login.grid}>
+        <div className={ui.login.leftPanel}>
+          <div className={ui.login.leftGlowBlue} />
+          <div className={ui.login.leftGlowTeal} />
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-3 rounded mb-4"
-          value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+          <div className={ui.login.brandWrap}>
+            <div className={ui.login.brandRow}>
+              <div className={ui.login.brandIcon}>CRM</div>
+              <div>
+                <p className={ui.text.titleSm}>Customer Relationship Management System</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-3 rounded mb-4"
-          value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
+        <div className={ui.login.formWrap}>
+          <form
+            onSubmit={handleSubmit}
+            className={ui.login.form}
+          >
+            <div className={ui.card.lg}>
+              <div className={ui.login.titleStack}>
+                <p className={ui.text.eyebrowWide}>
+                  Sign in
+                </p>
+                <h2 className={ui.text.titleLg}>Welcome back</h2>
+              </div>
 
-        <button
-          disabled={loading}
-          className="w-full bg-black text-white p-3 rounded"
-        >
-          {loading ? "Loading..." : "Login"}
-        </button>
-      </form>
+              <div className={ui.login.fields}>
+                <div className={ui.login.fieldGroup}>
+                  <label className={ui.text.label}>Email</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@company.com"
+                    className={ui.input.base}
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className={ui.login.fieldGroup}>
+                  <label className={ui.text.label}>Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter your password"
+                    className={ui.input.base}
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className={ui.login.metaRow}>
+                <label className={cx(ui.layout.rowGap2, ui.text.muted)}>
+                  <input
+                    type="checkbox"
+                    className={ui.checkbox}
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  Remember me
+                </label>
+                <button
+                  type="button"
+                  className={ui.button.link}
+                >
+                  Forgot password
+                </button>
+              </div>
+
+              <button
+                disabled={loading}
+                className={ui.login.submitButton}
+              >
+                {loading ? "Signing in..." : "Sign in"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

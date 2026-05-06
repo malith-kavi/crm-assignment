@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 import LeadForm from "../components/LeadForm";
 import toast from "react-hot-toast";
+import { ui } from "../constants/uiClasses";
 
 const EditLeadPage = () => {
   const { id } = useParams();
@@ -39,20 +40,38 @@ const EditLeadPage = () => {
     }
   };
 
-  if (!form) return <div>Loading...</div>;
+  if (!form) {
+    return (
+      <div className={ui.card.lg}>
+        <div className={ui.editLead.skeletonTitle} />
+        <div className={ui.editLead.skeletonStack}>
+          <div className={ui.editLead.skeletonLine} />
+          <div className={ui.editLead.skeletonLineSm} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">
-        Edit Lead
-      </h1>
+    <div className={ui.editLead.page}>
+      <div>
+        <p className={ui.text.eyebrow}>
+          Edit lead
+        </p>
+        <h1 className={ui.text.titleXl}>Update lead record</h1>
+        <p className={ui.editLead.headerDescription}>
+          Keep the opportunity aligned with the latest context.
+        </p>
+      </div>
 
-      <LeadForm
-        form={form}
-        setForm={setForm}
-        handleSubmit={handleSubmit}
-        loading={loading}
-      />
+      <div className={ui.editLead.card}>
+        <LeadForm
+          form={form}
+          setForm={setForm}
+          handleSubmit={handleSubmit}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 };
