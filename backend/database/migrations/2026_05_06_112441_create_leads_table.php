@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('assigned_salesperson');
             $table->string('status')->default('New');
             $table->decimal('estimated_deal_value', 10, 2)->default(0);
+            $table->string('priority')->default('Medium');
             $table->timestamps();
         });
     }
