@@ -65,7 +65,7 @@ class LeadController extends Controller
     {
         $lead = Lead::with('notes.user')->find($id);
 
-        if (!lead) {
+        if (!$lead) {
             return response()->json([
                 'message' => 'Lead not found'
             ], 404);
