@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { ui, cx } from "../constants/uiClasses";
 
 const navItems = [
@@ -45,6 +46,7 @@ const navItems = [
 
 const Sidebar = ({ collapsed, onToggleCollapse }) => {
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
 
   const initials = (user?.name || "User")
     .split(" ")
@@ -128,7 +130,10 @@ const Sidebar = ({ collapsed, onToggleCollapse }) => {
 
         <div className={collapsed ? cx(ui.sidebar.logoutButtonWrap, ui.sidebar.collapsedCenter) : undefined}>
           <button
-            onClick={logout}
+            onClick={async () => {
+              await logout();
+              navigate("/");
+            }}
             className={collapsed ? ui.sidebar.iconButton : cx(ui.sidebar.logoutButtonWrap, ui.button.secondaryOutline)}
             aria-label="Sign out"
             title="Sign out"

@@ -204,13 +204,23 @@ export const ui = {
     page: "min-h-screen bg-[var(--bg)] text-[var(--text)]",
     grid: "grid min-h-screen lg:grid-cols-2",
     leftPanel:
-      "relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-12 py-12 text-white lg:flex",
+      "relative hidden flex-col justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-12 py-12 text-white lg:flex",
     leftGlowBlue:
       "absolute -left-24 top-12 h-64 w-64 rounded-full bg-blue-500/30 blur-3xl",
     leftGlowTeal:
       "absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-teal-400/30 blur-3xl",
+    leftGlowRose:
+      "absolute left-1/2 top-1/4 h-48 w-48 -translate-x-1/2 rounded-full bg-rose-400/20 blur-3xl",
+    leftShapeOrbit:
+      "absolute left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full border border-white/10 bg-transparent blur-[1px]",
+    leftShapeCard:
+      "absolute right-16 top-1/3 h-24 w-40 rotate-12 rounded-[2rem] border border-cyan-300/15 bg-cyan-300/10 backdrop-blur-md",
+    leftShapeTop:
+      "absolute left-10 top-16 h-28 w-28 rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-sm",
+    leftShapeBottom:
+      "absolute bottom-16 right-12 h-20 w-20 rounded-full border border-teal-300/20 bg-teal-400/10 backdrop-blur-sm",
     brandWrap: "relative z-10",
-    brandRow: "flex items-center gap-3",
+    brandRow: "flex flex-col items-center gap-6 text-center",
     brandIcon:
       "flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 text-lg font-semibold",
     formWrap: "flex items-center justify-center px-6 py-12",

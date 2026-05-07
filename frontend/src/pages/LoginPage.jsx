@@ -41,6 +41,11 @@ const LoginPage = () => {
         <div className={ui.login.leftPanel}>
           <div className={ui.login.leftGlowBlue} />
           <div className={ui.login.leftGlowTeal} />
+          <div className={ui.login.leftGlowRose} />
+          <div className={ui.login.leftShapeOrbit} />
+          <div className={ui.login.leftShapeCard} />
+          <div className={ui.login.leftShapeTop} />
+          <div className={ui.login.leftShapeBottom} />
 
           <div className={ui.login.brandWrap}>
             <div className={ui.login.brandRow}>
@@ -95,23 +100,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <div className={ui.login.metaRow}>
-                <label className={cx(ui.layout.rowGap2, ui.text.muted)}>
-                  <input
-                    type="checkbox"
-                    className={ui.checkbox}
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                  />
-                  Remember me
-                </label>
-                <button
-                  type="button"
-                  className={ui.button.link}
-                >
-                  Forgot password
-                </button>
-              </div>
+              <div className={ui.login.metaRow}></div>
 
               <button
                 disabled={loading}
