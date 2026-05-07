@@ -609,9 +609,6 @@ const LeadsPage = () => {
               </svg>
             </div>
             <p className={ui.text.titleSm}>No leads yet</p>
-            <p className={ui.text.mutedSm}>
-              Create your first lead to start tracking pipeline activity.
-            </p>
             <button
               onClick={() => setShowForm(true)}
               className={ui.button.primary}
