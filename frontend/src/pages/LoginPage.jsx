@@ -76,7 +76,7 @@ const LoginPage = () => {
                   <input
                     type="email"
                     required
-                    placeholder="Enter your email"
+                    placeholder="you@company.com"
                     className={ui.input.base}
                     value={form.email}
                     onChange={(e) =>
