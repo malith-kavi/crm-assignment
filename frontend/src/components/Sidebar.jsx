@@ -16,8 +16,10 @@ const navItems = [
         strokeLinejoin="round"
         className={ui.icon.sm}
       >
-        <path d="M3 12l9-9 9 9" />
-        <path d="M9 21V9h6v12" />
+        <rect x="4" y="4" width="6" height="6" rx="1.5" />
+        <rect x="14" y="4" width="6" height="6" rx="1.5" />
+        <rect x="4" y="14" width="6" height="6" rx="1.5" />
+        <rect x="14" y="14" width="6" height="6" rx="1.5" />
       </svg>
     ),
   },

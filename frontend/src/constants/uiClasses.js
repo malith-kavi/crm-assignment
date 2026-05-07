@@ -69,6 +69,10 @@ export const ui = {
     compact:
       "rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5 text-sm font-medium outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]",
   },
+  select: {
+    base:
+      "w-full appearance-none rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]",
+  },
   textarea: {
     base:
       "w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]",
@@ -76,6 +80,8 @@ export const ui = {
   form: {
     floatingField:
       "peer w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 pb-3 pt-5 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]",
+    floatingFieldSelect:
+      "peer appearance-none w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 pb-3 pt-5 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]",
     floatingLabel:
       "pointer-events-none absolute left-4 top-4 text-xs font-medium text-[var(--text-muted)] transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:-top-2 peer-focus:text-xs",
     stickyBar:

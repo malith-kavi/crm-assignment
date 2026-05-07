@@ -26,7 +26,7 @@ const LeadDetailsPage = () => {
     if (!value) return "N/A";
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "N/A";
-    return date.toLocaleString();
+    return date.toLocaleDateString();
   };
 
   const fetchLead = async () => {
@@ -125,18 +125,20 @@ const LeadDetailsPage = () => {
           </div>
         </div>
         <div className={ui.layout.actionsRow}>
-          <select
-            className={ui.input.compact}
-            value={lead.status}
-            onChange={handleStatusChange}
-            disabled={updatingStatus}
-          >
-            {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
+          <div className="flex-1">
+            <select
+              className={ui.select.base}
+              value={lead.status}
+              onChange={handleStatusChange}
+              disabled={updatingStatus}
+            >
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
           <Link
             to={`/leads/edit/${lead.id}`}
             className={ui.button.secondaryOutline}
@@ -178,44 +180,6 @@ const LeadDetailsPage = () => {
             </div>
           </div>
 
-          <div className={ui.card.md}>
-            <div className={ui.layout.rowBetween}>
-              <h2 className={ui.text.titleSm}>Activity timeline</h2>
-              <span className={ui.text.mutedXs}>Last 14 days</span>
-            </div>
-            <div className={ui.leadDetails.activityList}>
-              {[
-                {
-                  title: "Intro call completed",
-                  detail: "Discovery call with decision maker",
-                  time: "Today",
-                },
-                {
-                  title: "Proposal sent",
-                  detail: "Shared pricing and rollout plan",
-                  time: "2 days ago",
-                },
-                {
-                  title: "Lead qualified",
-                  detail: "BANT confirmed",
-                  time: "1 week ago",
-                },
-              ].map((item) => (
-                <div key={item.title} className={ui.leadDetails.activityItem}>
-                  <div className={ui.leadDetails.activityDot} />
-                  <div>
-                    <p className={ui.text.label}>{item.title}</p>
-                    <p className={ui.text.mutedXs}>
-                      {item.detail}
-                    </p>
-                    <p className={ui.leadDetails.activityMeta}>
-                      {item.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           <div className={ui.card.md}>
             <div className={ui.layout.rowBetween}>
@@ -245,7 +209,7 @@ const LeadDetailsPage = () => {
             <div className={ui.leadDetails.notesList}>
               {notes.length === 0 ? (
                 <div className={ui.card.empty}>
-                  No notes yet. Capture the next step to keep everyone aligned.
+                  No notes yet.
                 </div>
               ) : (
                 notes.map((n) => (
@@ -271,9 +235,6 @@ const LeadDetailsPage = () => {
             </p>
             <p className={ui.leadDetails.dealValue}>
               ${lead.estimated_deal_value || 0}
-            </p>
-            <p className={ui.leadDetails.dealSubtext}>
-              Last updated {formatDate(lead.updated_at)}
             </p>
             <div className={ui.leadDetails.progressTrack}>
               <div className={ui.leadDetails.progressFill} />
@@ -301,36 +262,6 @@ const LeadDetailsPage = () => {
                 <span className={ui.text.muted}>Updated</span>
                 <span className={ui.text.label}>{formatDate(lead.updated_at)}</span>
               </div>
-            </div>
-          </div>
-
-          <div className={ui.card.md}>
-            <p className={ui.text.eyebrow}>
-              Recent communication
-            </p>
-            <div className={ui.leadDetails.communicationList}>
-              {[
-                {
-                  channel: "Email",
-                  detail: "Pricing follow-up sent",
-                  time: "2 days ago",
-                },
-                {
-                  channel: "Call",
-                  detail: "Follow-up scheduled",
-                  time: "Next Monday",
-                },
-              ].map((item) => (
-                <div key={item.channel} className={ui.card.panelMutedSm}>
-                  <p className={ui.text.label}>{item.channel}</p>
-                  <p className={ui.text.mutedXs}>
-                    {item.detail}
-                  </p>
-                  <p className={ui.leadDetails.activityMeta}>
-                    {item.time}
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
         </aside>

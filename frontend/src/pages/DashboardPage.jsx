@@ -51,7 +51,7 @@ const DashboardPage = () => {
   const formatCurrency = (value) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "LKR",
       maximumFractionDigits: 0,
     }).format(value || 0);
 
@@ -85,175 +85,187 @@ const DashboardPage = () => {
       }));
   }, [leads]);
 
-  const kpiCards = [
-    {
-      title: "Total leads",
-      value: totals.totalLeads,
-      change: "+12%",
-      trend: "vs last 30 days",
-      tone: "blue",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M4 7h16" />
-          <path d="M4 12h10" />
-          <path d="M4 17h7" />
-        </svg>
-      ),
-    },
-    {
-      title: "New leads",
-      value: totals.newLeads,
-      change: "+6%",
-      trend: "Fresh inbound flow",
-      tone: "teal",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M12 5v14" />
-          <path d="M5 12h14" />
-        </svg>
-      ),
-    },
-    {
-      title: "Qualified leads",
-      value: totals.qualifiedLeads,
-      change: "+4%",
-      trend: "Sales ready",
-      tone: "emerald",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M20 7l-9 9-4-4" />
-        </svg>
-      ),
-    },
-    {
-      title: "Won deals",
-      value: totals.wonLeads,
-      change: "+5%",
-      trend: "Improved close rate",
-      tone: "emerald",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M5 12l4 4L19 6" />
-        </svg>
-      ),
-    },
-    {
-      title: "Lost leads",
-      value: totals.lostLeads,
-      change: "-2%",
-      trend: "Downward trend",
-      tone: "amber",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M6 6l12 12" />
-          <path d="M18 6l-12 12" />
-        </svg>
-      ),
-    },
-    {
-      title: "Conversion rate",
-      value: `${totals.conversionRate}%`,
-      change: "+1.8%",
-      trend: "Goal is 24%",
-      tone: "blue",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M4 20h16" />
-          <path d="M6 16l4-6 4 3 4-7" />
-        </svg>
-      ),
-    },
-    {
-      title: "Total deal value",
-      value: formatCurrency(stats.total_deal_value),
-      change: "+9%",
-      trend: "Pipeline outlook",
-      tone: "amber",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M12 1v22" />
-          <path d="M17 5H9a4 4 0 0 0 0 8h6a4 4 0 0 1 0 8H6" />
-        </svg>
-      ),
-    },
-    {
-      title: "Won deal value",
-      value: formatCurrency(stats.won_deal_value),
-      change: "+7%",
-      trend: "Closed this month",
-      tone: "teal",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={ui.icon.sm}
-        >
-          <path d="M12 5v14" />
-          <path d="M8 9h8" />
-        </svg>
-      ),
-    },
-  ];
+  const kpiCards = useMemo(() => {
+    const qualificationRate = totals.totalLeads
+      ? ((totals.qualifiedLeads / totals.totalLeads) * 100).toFixed(1)
+      : "0.0";
+    const lostRate = totals.totalLeads
+      ? ((totals.lostLeads / totals.totalLeads) * 100).toFixed(1)
+      : "0.0";
+    const newLeadRate = totals.totalLeads
+      ? ((totals.newLeads / totals.totalLeads) * 100).toFixed(1)
+      : "0.0";
+
+    return [
+      {
+        title: "Total leads",
+        value: totals.totalLeads,
+        change: "0%",
+        trend: "in system",
+        tone: "blue",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M4 7h16" />
+            <path d="M4 12h10" />
+            <path d="M4 17h7" />
+          </svg>
+        ),
+      },
+      {
+        title: "New leads",
+        value: totals.newLeads,
+        change: `${newLeadRate}%`,
+        trend: "of total leads",
+        tone: "teal",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+        ),
+      },
+      {
+        title: "Qualified leads",
+        value: totals.qualifiedLeads,
+        change: `${qualificationRate}%`,
+        trend: "Progressed in pipeline",
+        tone: "emerald",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M20 7l-9 9-4-4" />
+          </svg>
+        ),
+      },
+      {
+        title: "Won deals",
+        value: totals.wonLeads,
+        change: `${totals.conversionRate}%`,
+        trend: "Conversion rate",
+        tone: "emerald",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M5 12l4 4L19 6" />
+          </svg>
+        ),
+      },
+      {
+        title: "Lost leads",
+        value: totals.lostLeads,
+        change: `${lostRate}%`,
+        trend: "Lost from pipeline",
+        tone: "amber",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M6 6l12 12" />
+            <path d="M18 6l-12 12" />
+          </svg>
+        ),
+      },
+      {
+        title: "Conversion rate",
+        value: `${totals.conversionRate}%`,
+        change: totals.totalLeads > 0 ? `${totals.wonLeads} won` : "0 won",
+        trend: "of total leads",
+        tone: "blue",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M4 20h16" />
+            <path d="M6 16l4-6 4 3 4-7" />
+          </svg>
+        ),
+      },
+      {
+        title: "Total deal value",
+        value: formatCurrency(stats.total_deal_value),
+        change: stats.total_deal_value ? "Active" : "0",
+        trend: "Pipeline outlook",
+        tone: "amber",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M12 1v22" />
+            <path d="M17 5H9a4 4 0 0 0 0 8h6a4 4 0 0 1 0 8H6" />
+          </svg>
+        ),
+      },
+      {
+        title: "Won deal value",
+        value: formatCurrency(stats.won_deal_value),
+        change: stats.won_deal_value ? "Completed" : "0",
+        trend: "Closed deals",
+        tone: "teal",
+        icon: (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={ui.icon.sm}
+          >
+            <path d="M12 5v14" />
+            <path d="M8 9h8" />
+          </svg>
+        ),
+      },
+    ];
+  }, [stats, totals, formatCurrency]);
 
   const formatRelativeTime = (value) => {
     if (!value) return "Unknown time";
@@ -444,14 +456,6 @@ const DashboardPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className={ui.dashboard.forecastCard}>
-              <p className={ui.text.labelStrong}>Revenue forecast</p>
-              <p className={ui.text.mutedXs}>
-                Next 30 days based on active deals.
-              </p>
-              <div className={ui.dashboard.forecastChart} />
             </div>
           </div>
 

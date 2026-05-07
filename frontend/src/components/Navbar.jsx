@@ -36,12 +36,7 @@ const Navbar = ({ collapsed = false }) => {
         </div>
 
         <div className={ui.layout.rowWrapGap3}>
-          <div className={ui.navbar.searchWrap}>
-            <input
-              className={ui.input.baseText}
-              placeholder="Search"
-            />
-          </div>
+          
 
           <button
             onClick={toggleTheme}

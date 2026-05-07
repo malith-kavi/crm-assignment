@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 import LeadForm from "../components/LeadForm";
+import ConfirmDialog from "../components/ConfirmDialog";
 import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
@@ -26,13 +27,18 @@ const statuses = [
   "Lost",
 ];
 
+const pageSize = 10;
+
 const LeadsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [leadSources, setLeadSources] = useState([]);
+  const [salespersons, setSalespersons] = useState([]);
   const [leads, setLeads] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [loadingLeads, setLoadingLeads] = useState(true);
+  const [loadingLookups, setLoadingLookups] = useState(true);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     status: "",
@@ -41,7 +47,37 @@ const LeadsPage = () => {
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [activeLookupCard, setActiveLookupCard] = useState(null);
+  const [newLeadSource, setNewLeadSource] = useState("");
+  const [newSalesperson, setNewSalesperson] = useState("");
+  const [savingLeadSource, setSavingLeadSource] = useState(false);
+  const [savingSalesperson, setSavingSalesperson] = useState(false);
   const [sort, setSort] = useState("recent");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    type: null,
+    leadId: null,
+    count: 0,
+    isDeleting: false,
+  });
+
+  const fetchLookups = async () => {
+    try {
+      setLoadingLookups(true);
+      const [leadSourcesResponse, salespersonsResponse] = await Promise.all([
+        api.get("/lead-sources"),
+        api.get("/salespersons"),
+      ]);
+
+      setLeadSources(leadSourcesResponse.data);
+      setSalespersons(salespersonsResponse.data);
+    } catch {
+      toast.error("Unable to load lead options");
+    } finally {
+      setLoadingLookups(false);
+    }
+  };
 
   const fetchLeads = async () => {
     const params = new URLSearchParams();
@@ -89,6 +125,14 @@ const LeadsPage = () => {
   ]);
 
   useEffect(() => {
+    fetchLookups();
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filters.status, filters.lead_source, filters.assigned_salesperson, sort]);
+
+  useEffect(() => {
     if (location.state?.openCreateLead) {
       setShowForm(true);
       navigate(location.pathname, { replace: true, state: null });
@@ -111,20 +155,111 @@ const LeadsPage = () => {
     }
   };
 
-  const deleteLead = async (id) => {
-    if (!confirm("Delete this lead?")) return;
+  const handleAddLeadSource = async (e) => {
+    e.preventDefault();
 
-    await api.delete(`/leads/${id}`);
+    if (!newLeadSource.trim()) {
+      toast.error("Enter a source name");
+      return;
+    }
 
-    toast.success("Deleted");
-    fetchLeads();
+    try {
+      setSavingLeadSource(true);
+      await api.post("/lead-sources", { name: newLeadSource.trim() });
+      toast.success("Lead source added");
+      setNewLeadSource("");
+      await fetchLookups();
+    } catch {
+      toast.error("Failed to add lead source");
+    } finally {
+      setSavingLeadSource(false);
+    }
+  };
+
+  const handleAddSalesperson = async (e) => {
+    e.preventDefault();
+
+    if (!newSalesperson.trim()) {
+      toast.error("Enter a salesperson name");
+      return;
+    }
+
+    try {
+      setSavingSalesperson(true);
+      await api.post("/salespersons", { name: newSalesperson.trim() });
+      toast.success("Salesperson added");
+      setNewSalesperson("");
+      await fetchLookups();
+    } catch {
+      toast.error("Failed to add salesperson");
+    } finally {
+      setSavingSalesperson(false);
+    }
+  };
+
+  const deleteLead = (id) => {
+    setDeleteDialog({
+      isOpen: true,
+      type: "single",
+      leadId: id,
+      count: 1,
+      isDeleting: false,
+    });
+  };
+
+  const deleteSelectedLeads = () => {
+    if (selectedIds.length <= 2) return;
+    setDeleteDialog({
+      isOpen: true,
+      type: "bulk",
+      leadId: null,
+      count: selectedIds.length,
+      isDeleting: false,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleteDialog((prev) => ({ ...prev, isDeleting: true }));
+    try {
+      if (deleteDialog.type === "single") {
+        await api.delete(`/leads/${deleteDialog.leadId}`);
+        toast.success("Lead deleted");
+      } else {
+        await Promise.all(selectedIds.map((id) => api.delete(`/leads/${id}`)));
+        toast.success("Selected leads deleted");
+        setSelectedIds([]);
+      }
+      fetchLeads();
+    } catch {
+      toast.error("Failed to delete leads");
+    } finally {
+      setDeleteDialog({
+        isOpen: false,
+        type: null,
+        leadId: null,
+        count: 0,
+        isDeleting: false,
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialog({
+      isOpen: false,
+      type: null,
+      leadId: null,
+      count: 0,
+      isDeleting: false,
+    });
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === leads.length) {
-      setSelectedIds([]);
+    const currentPageIds = paginatedLeads.map((lead) => lead.id);
+
+    if (currentPageIds.every((id) => selectedIds.includes(id))) {
+      setSelectedIds((prev) => prev.filter((id) => !currentPageIds.includes(id)));
     } else {
-      setSelectedIds(leads.map((lead) => lead.id));
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...currentPageIds])));
     }
   };
 
@@ -148,8 +283,21 @@ const LeadsPage = () => {
     return leads;
   }, [leads, sort]);
 
+  const totalPages = Math.max(1, Math.ceil(formattedLeads.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  const paginatedLeads = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return formattedLeads.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, formattedLeads]);
+
   const totalSelected = selectedIds.length;
-  const allSelected = leads.length > 0 && totalSelected === leads.length;
+  const allSelected =
+    paginatedLeads.length > 0 &&
+    paginatedLeads.every((lead) => selectedIds.includes(lead.id));
 
   const getInitials = (name) =>
     (name || "Lead")
@@ -162,6 +310,17 @@ const LeadsPage = () => {
   const priorityTone = (priority) =>
     ui.tone.priority[priority] || ui.tone.priority.Medium;
 
+  const leadSourceOptions = leadSources.map((source) => source.name);
+  const salespersonOptions = salespersons.map((salesperson) => salesperson.name);
+
+  const buildSelectOptions = (options, currentValue) =>
+    currentValue && !options.includes(currentValue)
+      ? [...options, currentValue]
+      : options;
+
+  const activeLookupTitle =
+    activeLookupCard === "source" ? "Add a source" : "Add a salesperson";
+
   return (
     <div className={ui.layout.page}>
       <div className={ui.layout.headerRow}>
@@ -170,31 +329,110 @@ const LeadsPage = () => {
             Leads
           </p>
           <h1 className={ui.text.titleXl}>Lead management</h1>
-          <p className={ui.leads.headerDescription}>
-            Track prospects, manage priorities, and keep pipeline context in one place.
-          </p>
         </div>
         <div className={ui.layout.actionsRow}>
-          <button className={ui.button.secondary}>
-            Import CSV
-          </button>
           <button
             onClick={() => setShowForm((prev) => !prev)}
             className={ui.button.primary}
           >
             {showForm ? "Close form" : "Create lead"}
           </button>
+          <button
+            onClick={() =>
+              setActiveLookupCard((prev) => (prev === "source" ? null : "source"))
+            }
+            className={ui.button.secondary}
+          >
+            Add source
+          </button>
+          <button
+            onClick={() =>
+              setActiveLookupCard((prev) =>
+                prev === "salesperson" ? null : "salesperson"
+              )
+            }
+            className={ui.button.secondary}
+          >
+            Add salespersons
+          </button>
         </div>
       </div>
+
+      {activeLookupCard ? (
+        <div className={ui.leads.formCard}>
+          <div className={ui.leads.formHeader}>
+            <div>
+              <h2 className={ui.text.titleSm}>{activeLookupTitle}</h2>
+            </div>
+            <button
+              onClick={() => setActiveLookupCard(null)}
+              className={ui.text.mutedSm}
+            >
+              Dismiss
+            </button>
+          </div>
+
+          {activeLookupCard === "source" ? (
+            <form onSubmit={handleAddLeadSource} className={ui.leadForm.form}>
+              <div className="space-y-2">
+                <label htmlFor="lead_source_name" className={ui.text.labelStrong}>
+                  Lead source name
+                </label>
+                <input
+                  id="lead_source_name"
+                  className={ui.input.base}
+                  value={newLeadSource}
+                  onChange={(e) => setNewLeadSource(e.target.value)}
+                  placeholder="Source name"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className={ui.form.stickyBar}>
+                <div className={ui.leadForm.actionsRow}>
+                  <p className={ui.text.mutedXs}>
+                  </p>
+                  <button className={ui.button.primaryWide} disabled={savingLeadSource}>
+                    {savingLeadSource ? "Saving..." : " Add "}
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleAddSalesperson} className={ui.leadForm.form}>
+              <div className="space-y-2">
+                <label htmlFor="salesperson_name" className={ui.text.labelStrong}>
+                  Salesperson name
+                </label>
+                <input
+                  id="salesperson_name"
+                  className={ui.input.base}
+                  value={newSalesperson}
+                  onChange={(e) => setNewSalesperson(e.target.value)}
+                  placeholder="Name"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className={ui.form.stickyBar}>
+                <div className={ui.leadForm.actionsRow}>
+                  <p className={ui.text.mutedXs}>
+                  </p>
+                  <button className={ui.button.primaryWide} disabled={savingSalesperson}>
+                    {savingSalesperson ? "Saving..." : " Add "}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+        </div>
+      ) : null}
 
       {showForm ? (
         <div className={ui.leads.formCard}>
           <div className={ui.leads.formHeader}>
             <div>
               <h2 className={ui.text.titleSm}>New lead</h2>
-              <p className={ui.text.mutedSm}>
-                Add a new prospect to your pipeline.
-              </p>
             </div>
             <button
               onClick={() => setShowForm(false)}
@@ -208,6 +446,11 @@ const LeadsPage = () => {
             setForm={setForm}
             handleSubmit={handleSubmit}
             loading={loading}
+            leadSources={buildSelectOptions(leadSourceOptions, form.lead_source)}
+            salespersons={buildSelectOptions(
+              salespersonOptions,
+              form.assigned_salesperson
+            )}
           />
         </div>
       ) : null}
@@ -221,7 +464,7 @@ const LeadsPage = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
           <select
-            className={ui.input.base}
+            className={ui.select.base}
             value={filters.status}
             onChange={(e) =>
               setFilters((prev) => ({
@@ -237,9 +480,8 @@ const LeadsPage = () => {
               </option>
             ))}
           </select>
-          <input
-            placeholder="Lead source"
-            className={ui.input.base}
+          <select
+            className={ui.select.base}
             value={filters.lead_source}
             onChange={(e) =>
               setFilters((prev) => ({
@@ -247,10 +489,16 @@ const LeadsPage = () => {
                 lead_source: e.target.value,
               }))
             }
-          />
-          <input
-            placeholder="Assigned to"
-            className={ui.input.base}
+          >
+            <option value="">All sources</option>
+            {leadSourceOptions.map((source) => (
+              <option key={source} value={source}>
+                {source}
+              </option>
+            ))}
+          </select>
+          <select
+            className={ui.select.base}
             value={filters.assigned_salesperson}
             onChange={(e) =>
               setFilters((prev) => ({
@@ -258,9 +506,16 @@ const LeadsPage = () => {
                 assigned_salesperson: e.target.value,
               }))
             }
-          />
+          >
+            <option value="">All salespersons</option>
+            {salespersonOptions.map((salesperson) => (
+              <option key={salesperson} value={salesperson}>
+                {salesperson}
+              </option>
+            ))}
+          </select>
           <select
-            className={ui.input.base}
+            className={ui.select.base}
             value={sort}
             onChange={(e) => setSort(e.target.value)}
           >
@@ -316,24 +571,14 @@ const LeadsPage = () => {
             ) : null}
           </div>
           <div className={ui.leads.tableActions}>
-            <button
-              className={ui.button.secondarySm}
-              disabled={totalSelected === 0}
-            >
-              Assign
-            </button>
-            <button
-              className={ui.button.secondarySm}
-              disabled={totalSelected === 0}
-            >
-              Export
-            </button>
-            <button
-              className={ui.button.dangerSm}
-              disabled={totalSelected === 0}
-            >
-              Delete
-            </button>
+            {totalSelected > 2 ? (
+              <button
+                onClick={deleteSelectedLeads}
+                className={ui.button.dangerSm}
+              >
+                Delete selected
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -389,7 +634,7 @@ const LeadsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {formattedLeads.map((lead) => (
+                {paginatedLeads.map((lead) => (
                   <tr
                     key={lead.id}
                     className={ui.table.row}
@@ -472,17 +717,43 @@ const LeadsPage = () => {
         )}
 
         <div className={ui.leads.footer}>
-          <span>Showing 1 to {Math.min(10, formattedLeads.length)} of {formattedLeads.length} leads</span>
+          <span>
+            Showing {formattedLeads.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, formattedLeads.length)} of {formattedLeads.length} leads
+          </span>
           <div className={ui.leads.footerButtons}>
-            <button className={ui.button.secondaryXs}>
+            <button
+              className={ui.button.secondaryXs}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1 || loadingLeads}
+            >
               Previous
             </button>
-            <button className={ui.button.secondaryXs}>
+            <button
+              className={ui.button.secondaryXs}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages || loadingLeads}
+            >
               Next
             </button>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title="Delete lead(s)"
+        message={
+          deleteDialog.type === "single"
+            ? "This lead will be permanently deleted. This action cannot be undone."
+            : `${deleteDialog.count} leads will be permanently deleted. This action cannot be undone.`
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteDialog.isDeleting}
+        isDanger={true}
+      />
     </div>
   );
 };
