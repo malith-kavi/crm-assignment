@@ -14,6 +14,9 @@ class LeadController extends Controller
     {
         $query = Lead::query();
 
+        
+        $query->where('is_deleted', false);
+
         if ($request->search){
             $query->where(function($q) use ($request){
                 $q->where('lead_name', 'like', '%' .$request->search . '%')
@@ -63,7 +66,10 @@ class LeadController extends Controller
 
     public function show($id)
     {
-        $lead = Lead::with('notes.user')->find($id);
+        $lead = Lead::where('id', $id)
+            ->where('is_deleted', false)
+            ->with('notes.user')
+            ->first();
 
         if (!$lead) {
             return response()->json([
@@ -77,7 +83,9 @@ class LeadController extends Controller
     
     public function update(Request $request, $id)
     {
-        $lead = Lead::find($id);
+        $lead = Lead::where('id', $id)
+            ->where('is_deleted', false)
+            ->first();
 
         if (!$lead) {
             return response()->json([
@@ -107,7 +115,9 @@ class LeadController extends Controller
     
     public function destroy($id)
     {
-        $lead = Lead::find($id);
+        $lead = Lead::where('id', $id)
+            ->where('is_deleted', false)
+            ->first();
 
         if (!$lead) {
             return response()->json([
@@ -115,7 +125,7 @@ class LeadController extends Controller
             ], 404);
         }
 
-        $lead->delete();
+        $lead->update(['is_deleted' => true]);
 
         return response()->json([
             'message' => 'Lead deleted successfully'

@@ -14,7 +14,8 @@ class Lead extends Model
         'lead_source',
         'assigned_salesperson',
         'status',
-        'estimated_deal_value'
+        'estimated_deal_value',
+        'is_deleted'
     ];
     
     public function notes()

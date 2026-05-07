@@ -16,7 +16,9 @@ class NoteController extends Controller
             'content' => 'required|string'
         ]);
 
-        $lead =Lead::find($leadId);
+        $lead = Lead::where('id', $leadId)
+            ->where('is_deleted', false)
+            ->first();
 
         if(!$lead){
             return response()->json([
