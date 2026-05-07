@@ -4,9 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LeadSourceController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\SalespersonController;
 
 
 
@@ -19,6 +21,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [AuthController::class, 'user']);
 
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+    Route::apiResource('lead-sources', LeadSourceController::class)->only(['index', 'store']);
+    Route::apiResource('salespersons', SalespersonController::class)->only(['index', 'store']);
     
     Route::apiResource('leads', LeadController::class);
     Route::post('leads/{leadId}/notes',[NoteController::class, 'store']);
