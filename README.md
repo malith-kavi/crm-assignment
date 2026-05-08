@@ -124,3 +124,6 @@ These are created by `DatabaseSeeder`:
 
 ## Demo Video Link
 https://drive.google.com/drive/folders/12yvxl6d4lEYFfBXNiAo7V6neLKo5oxMm?usp=sharing
+
+## Application Link
+https://crm-assignment-rust.vercel.app
