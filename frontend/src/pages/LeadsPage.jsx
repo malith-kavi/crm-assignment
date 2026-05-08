@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import { ui, cx } from "../constants/uiClasses";
+import { formatLkrCurrency } from "../utils/currency";
 
 const initialForm = {
   lead_name: "",
@@ -609,9 +610,6 @@ const LeadsPage = () => {
               </svg>
             </div>
             <p className={ui.text.titleSm}>No leads yet</p>
-            <p className={ui.text.mutedSm}>
-              Create your first lead to start tracking pipeline activity.
-            </p>
             <button
               onClick={() => setShowForm(true)}
               className={ui.button.primary}
@@ -680,7 +678,7 @@ const LeadsPage = () => {
                       </span>
                     </td>
                     <td className={ui.leads.valueCell}>
-                      ${lead.estimated_deal_value}
+                      {formatLkrCurrency(lead.estimated_deal_value)}
                     </td>
                     <td className={ui.table.cell}>
                       <p className={ui.text.label}>
