@@ -4,6 +4,7 @@ import api from "../api/axios";
 import toast from "react-hot-toast";
 import StatusBadge from "../components/StatusBadge";
 import { ui, cx } from "../constants/uiClasses";
+import { formatLkrCurrency } from "../utils/currency";
 
 const statusOptions = [
   "New",
@@ -234,7 +235,7 @@ const LeadDetailsPage = () => {
               Deal value
             </p>
             <p className={ui.leadDetails.dealValue}>
-              ${lead.estimated_deal_value || 0}
+              {formatLkrCurrency(lead.estimated_deal_value)}
             </p>
             <div className={ui.leadDetails.progressTrack}>
               <div className={ui.leadDetails.progressFill} />
